@@ -11,6 +11,8 @@ class QuoteSpider(scrapy.Spider):
         AUTHOR_SELECTOR = '.author::text'
         ABOUT_SELECTOR = '.author + a::attr("href")'
         TAG_SELECTOR = '.tags > .tag::text'
+        NEXT_SELECTOR = '.next a::attr("href")'
+
 
         for quote in response.css(QUOTE_SELECTOR):
             yield{
@@ -19,3 +21,7 @@ class QuoteSpider(scrapy.Spider):
                 'author': 'https://quotes.toscrape.com' + quote.css(ABOUT_SELECTOR).extract_first(),
                 'tags': quote.css(TAG_SELECTOR).extract_first(),
             }
+        
+        next_page = response.css(NEXT_SELECTOR).extract_first()
+        if next_page:
+            yield scrapy.Request(response.urljoin(next_page))
